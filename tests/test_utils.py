@@ -1,31 +1,24 @@
-from src.utils import find_operations_executed, datetime_operations, number_card_cod, number_check_cod, load_operations
-
-def test_load_operations():
-    assert load_operations("id") == 441945886
-    assert load_operations("state") == "EXECUTED"
-    assert load_operations("date") == "2019-08-26T10:50:58.294041"
-    assert load_operations("description") == "Перевод организации"
-    assert load_operations("from") == "Maestro 1596837868705199"
-    assert load_operations("to") == "Счет 64686473678894779589"
-    assert load_operations("operationAmount")("amount") == "31957.58"
-    assert load_operations("operationAmount")("name") == "руб."
+from src.utils import datetime_operations, number_check_cod, get_filtered_executed, get_last_operations, number_card_cod
 
 
-def test_find_operations_executed():
-    assert find_operations_executed("date") == "2019-08-26T10:50:58.294041"
-    assert find_operations_executed("description") == "Перевод организации"
-    assert find_operations_executed("from") == "Maestro 1596837868705199"
-    assert find_operations_executed("to") == "Счет 64686473678894779589"
-    assert find_operations_executed("operationAmount")("amount") == "31957.58"
-    assert find_operations_executed("operationAmount")("name") == "руб."
+def test_get_filtered_executed(test_data):
+    data = get_filtered_executed(test_data)
+    assert [x["state"] for x in data] == "EXECUTED"
+
+def test_get_last_operations(test_data):
+    data = get_last_operations(test_data)
+    assert [x["date"] for x in data] == ['2019-08-26T10:50:58.294041', '2019-03-23T01:09:46.296404', '2018-12-20T16:43:26.929246', '2018-03-23T10:45:06.972075', '2018-03-23T10:45:06.972075']
 
 
-def test_datetime_operations():
-    assert datetime_operations('%d.%m.%Y') == '20.02.2023'
-    assert datetime_operations('%Y-%m-%dT%H:%M:%S.%f') == '2019-08-26T10:50:58.294041'
+def test_datetime_operations(test_data):
+    data = datetime_operations(test_data)
+    assert [x["date"] for x in data] == ['26.08.2019']
 
-def test_number_card_cod():
-    assert number_card_cod("Maestro 1596837868705199") == "1596 83** **** 5199"
 
-def test_number_check_cod():
-    assert number_check_cod("Счет 64686473678894779589") == "****************9589"
+def test_number_card_cod(test_data):
+    data = number_card_cod(test_data)
+    assert [x["from"] for x in data] == ['1596 83** **** 5199']
+
+def test_number_check_cod(test_data):
+    data = number_check_cod(test_data)
+    assert [x["to"] for x in data] == ['*********************9589']
